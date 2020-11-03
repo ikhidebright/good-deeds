@@ -1,11 +1,11 @@
 {
   "name": "good-deeds-backend",
   "version": "1.0.0",
-  "description": "This is the backend for the good deeds project for NRA",
+  "description": "This is the backend for the good deeds project by NRA",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec babel-node index.js"
+    "dev": "nodemon --exec babel-node index.js",
+    "test": "jest"
   },
   "author": "Ikhide Bright",
   "license": "ISC",
@@ -29,6 +29,12 @@
     "@babel/plugin-transform-runtime": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@babel/runtime": "^7.12.1",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.12.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^30.7.6",
+    "jest": "^26.6.2",
     "nodemon": "^2.0.6"
   }
 }
