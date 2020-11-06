@@ -6,6 +6,10 @@ import mongoose from "mongoose";
 import passport from "passport";
 import createError from "http-errors";
 import dotenv from "dotenv";
+import authRoutes from './routes/auth.routes'
+import swaggerUi from 'swagger-ui-express'
+const swaggerDocument = require("./swagger.json");
+// swagger setUp
 
 require("./config/db");
 
@@ -13,26 +17,33 @@ dotenv.config();
 
 const app = express();
 
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, { explorer: true })
+);
 app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.status(200).json({
+app.use('/api', authRoutes)
+
+app.get("/", (request, response) => {
+  response.status(200).json({
     status: true,
     message: "This is the API for the good deeds project by NRA",
   });
 });
 
-app.use((req, res, next) => {
+app.use((request, response, next) => {
   next(createError.NotFound());
 });
 
-app.use((err, req, res, next) => {
-  res.status(err.status || 500);
-  res.send({
+app.use((err, request, response, next) => {
+  response.status(err.status || 500);
+  response.send({
     error: {
       status: err.status || 500,
       message: err.message,
