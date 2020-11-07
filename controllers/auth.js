@@ -20,6 +20,13 @@ export default class Auth {
             let data = await user.save()
             let token = createToken(data._id)
             let link = `http://localhost:3000/confirm-account/${token}`
+            const options = {
+                mail: result.email,
+                subject: 'Welcome to Good Deeds!, confirm your email',
+                email: '/email/welcome.ejs',
+                variables: { name: result.name, link: link }
+            }
+            await Mail(options)
             return response
             .status(200)
             .send({
