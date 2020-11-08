@@ -17,6 +17,7 @@ export default async function (options) {
                 }
                     await sgMail.send(msg)
         } catch (error) {
+            console.log("error", error)
             throw createError.Conflict(`Request was succesfull, but an Error occured sending confirmation mail`);
         } 
 }
