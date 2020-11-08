@@ -1,7 +1,7 @@
 import Token from '../helpers/token'
 const { verifyToken } = Token
 
-export default function (request, response, next) {
+export default async function (request, response, next) {
     try {
     let token = request.headers['x-access-token'] || req.headers['authorization'];
     let checkBearer = 'Bearer '
@@ -10,7 +10,7 @@ export default function (request, response, next) {
     }
 
     if (token) {
-        const user = verifyToken(token)
+        const user = await verifyToken(token)
         request.user = user
         next()
     }

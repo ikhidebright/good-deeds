@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import passport from "passport";
 import createError from "http-errors";
 import dotenv from "dotenv";
-import authRoutes from './routes/auth.routes'
+import apiRoutes from './routes/index.routes'
 import swaggerUi from 'swagger-ui-express'
 const swaggerDocument = require("./swagger.json");
 // swagger setUp
@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/api', authRoutes)
+app.use('/api', apiRoutes)
 
 app.get("/", (request, response) => {
   response.status(200).json({

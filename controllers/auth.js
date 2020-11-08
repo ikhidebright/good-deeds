@@ -1,7 +1,7 @@
 import { User } from '../models/user.model'
 import createError from "http-errors";
 import Encrypt from '../helpers/encrypt'
-import { authSchema, emailSchema, passwordSchema } from '../helpers/validateForm'
+import { authSchema, emailSchema, passwordSchema, randomMailchema } from '../helpers/validateForm'
 import Token from '../helpers/token'
 const { hashPassword, comparePassword } = Encrypt
 const { createToken, verifyToken } = Token
@@ -23,16 +23,13 @@ export default class Auth {
             const options = {
                 mail: result.email,
                 subject: 'Welcome to Good Deeds!, confirm your email',
-                email: '/email/welcome.ejs',
+                email: '../../email/welcome.ejs',
                 variables: { name: result.name, link: link }
             }
             await Mail(options)
             return response
             .status(200)
-            .send({
-                message: `Confirm your email on the link sent to ${result.email}`,
-                token: token
-            })
+            .send(`Confirm your email on the link sent to ${result.email}`)
             } catch (error) {
              if (error.isJoi === true) error.status = 422;
              next(error)
@@ -92,6 +89,13 @@ export default class Auth {
             }
             const token = createToken(user)
             const link = `http://localhost:3000/pass-reset/${token}/${user._id}`
+            const options = {
+                mail: result.email,
+                subject: 'Password reset!',
+                email: '../../email/forgotPassword.ejs',
+                variables: { name: user.name, link: link }
+            }
+            await Mail(options)
             return response
             .status(200)
             .send(`A Password reset link was sent to ${user.email}`)
@@ -112,9 +116,16 @@ export default class Auth {
             }
             const token = createToken(user._id)
             const link = `http://localhost:3000/confirm-account/${token}`
+            const options = {
+                mail: result.email,
+                subject: 'Confirm your email',
+                email: '../../email/welcome.ejs',
+                variables: { name: user.name, link: link }
+            }
+            await Mail(options)
             return response
             .status(200)
-            .send(token)
+            .send(`Confirm your email on the link sent to ${result.email}`)
             } catch (error) {
             if (error.isJoi === true) error.status = 422;
             next(error)
@@ -141,13 +152,52 @@ export default class Auth {
             if (error.isJoi === true) error.status = 422;
             next(error)
         } 
-    }
-    static async usersMe (request, response, next) {
-        try {
-        const user = verifyToken()
-        } catch (error) {
-            if (error.isJoi === true) error.status = 422;
-            next(error)
-        } 
-    }
+        }
+        static async usersMe (request, response, next) {
+            try {
+            const user = verifyToken()
+            } catch (error) {
+                if (error.isJoi === true) error.status = 422;
+                next(error)
+            } 
+        }
+        static async randomMailer (request, response, next) {
+            try {
+                const result = await randomMailchema.validateAsync(request.body)
+                let token = request.headers['x-access-token'] || request.headers['authorization'];
+                if (!token) {
+                throw createError.Unauthorized(`Unauthorized`);
+                }
+
+                if (token === process.env.randomMailer) {
+                    const html = `
+                    Name: ${result.name}
+                    <br>
+                    Email: ${result.email}
+                    <br>
+                    Phone: ${result.phone}
+                    <br>
+                    Date: ${result.date}
+                    <br>
+                    Subject: ${result.subject}
+                    <br><br><br>
+                    Message: ${result.message}
+                    `
+                    const options = {
+                        mail: result.myMail,
+                        subject: `Message from ${result.name}`,
+                        email: '../../email/general.ejs',
+                        variables: { message: html }
+                    }
+                    await Mail(options)
+                    return response
+                    .status(200)
+                    .send(`Sucessful!`)
+                }
+                throw createError.Unauthorized(`Unauthorized`);
+            } catch (error) {
+                if (error.isJoi === true) error.status = 422;
+                next(error)
+            } 
+        }
 }
