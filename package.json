@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec babel-node index.js",
     "test": "jest",
-    "start": "node index.js"
+    "start": "nodemon --exec babel-node index.js"
   },
   "author": "Ikhide Bright",
   "license": "ISC",
