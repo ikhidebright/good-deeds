@@ -122,7 +122,7 @@ export default class Deeds {
             const options = {
                 mail: posterEmail,
                 subject: 'YAY! Deed approved!',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: 'Bright', link: 'link' }
             }
             await Mail(options)
@@ -133,7 +133,7 @@ export default class Deeds {
             const options = {
                 mail: posterEmail,
                 subject: 'Sorry, Deed disapproved!',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: 'Bright', link: 'link' }
             }
             await Mail(options)

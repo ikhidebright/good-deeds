@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 const ejs = require("ejs");
 import createError from "http-errors";
+import path from 'path'
 dotenv.config();
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -8,7 +9,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 export default async function (options) {
     try {
         let { mail, subject, variables, email } = options
-        const data = await ejs.renderFile(__dirname + email, variables, { async: true })
+        const data = await ejs.renderFile(path.join(__dirname, email), variables, { async: true })
                 const msg = {
                     to: mail,
                     from: 'ikhidebright@gmail.com',

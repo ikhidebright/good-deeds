@@ -23,7 +23,7 @@ export default class Auth {
             const options = {
                 mail: result.email,
                 subject: 'Welcome to Good Deeds!, confirm your email',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: result.name, link: link }
             }
             await Mail(options)
@@ -92,7 +92,7 @@ export default class Auth {
             const options = {
                 mail: result.email,
                 subject: 'Password reset!',
-                email: '../../email/forgotPassword.ejs',
+                email: '../email/forgotPassword.ejs',
                 variables: { name: user.name, link: link }
             }
             await Mail(options)
@@ -119,7 +119,7 @@ export default class Auth {
             const options = {
                 mail: result.email,
                 subject: 'Confirm your email',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: user.name, link: link }
             }
             await Mail(options)
@@ -186,7 +186,7 @@ export default class Auth {
                     const options = {
                         mail: result.myMail,
                         subject: `Message from ${result.name}`,
-                        email: '../../email/general.ejs',
+                        email: '../email/general.ejs',
                         variables: { message: html }
                     }
                     await Mail(options)
