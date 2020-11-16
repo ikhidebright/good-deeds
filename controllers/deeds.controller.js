@@ -13,7 +13,7 @@ export default class Deeds {
                 location: result.location,
                 date: result.date,
                 description: result.description,
-                CreadtedBy: '5fa674cb935bec17689eebb1'
+                CreadtedBy: request.user._id
             }
             let deed = new Deed(deedData)
             await deed.save()
@@ -21,7 +21,6 @@ export default class Deeds {
             .status(200)
             .send(`Deed Posted!, waiting approval`)
             } catch (error) {
-                console.log(error)
              if (error.isJoi === true) error.status = 422;
              next(error)
             }
@@ -122,7 +121,7 @@ export default class Deeds {
             const options = {
                 mail: posterEmail,
                 subject: 'YAY! Deed approved!',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: 'Bright', link: 'link' }
             }
             await Mail(options)
@@ -133,7 +132,7 @@ export default class Deeds {
             const options = {
                 mail: posterEmail,
                 subject: 'Sorry, Deed disapproved!',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: 'Bright', link: 'link' }
             }
             await Mail(options)

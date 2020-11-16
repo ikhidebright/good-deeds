@@ -1,4 +1,5 @@
 import { User } from '../models/user.model'
+import { Roles } from '../models/roles.model'
 import createError from "http-errors";
 import Encrypt from '../helpers/encrypt'
 import { authSchema, emailSchema, passwordSchema, randomMailchema } from '../helpers/validateForm'
@@ -12,10 +13,15 @@ export default class Auth {
        try {
             const result = await authSchema.validateAsync(request.body)
             const userExist = await User.findOne({ email: result.email })
+            const role = await Roles.findOne({ name: 'user' })
             if (userExist) {
                 throw createError.Conflict(`${result.email} is already in use`);
             } 
+            if (!role) {
+                throw createError.Conflict(`An Error occured please contact support`);
+            } 
             result.password = hashPassword(result.password)
+            result.role = role._id
             let user = new User(result)
             let data = await user.save()
             let token = createToken(data._id)
@@ -23,7 +29,7 @@ export default class Auth {
             const options = {
                 mail: result.email,
                 subject: 'Welcome to Good Deeds!, confirm your email',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: result.name, link: link }
             }
             await Mail(options)
@@ -37,7 +43,9 @@ export default class Auth {
         }
     static async login (request, response, next) {
         try {
-        const user = await User.findOne({ email: request.body.email })
+        let emailVerify = {email:request.body.email}
+        const result = await emailSchema.validateAsync(emailVerify)
+        const user = await User.findOne({ email: result.email }).populate({path: 'role', select: 'name description _id'})
         if (!user) {
             throw createError.Conflict(`Account doesn't exist`);
         }
@@ -47,7 +55,7 @@ export default class Auth {
         if (!user.emailConfirm) {
             throw createError.Conflict(`Please confirm you email: ${result.email} before you can login`);
         }
-        const passwordMatch = comparePassword(request.body, user.password)
+        const passwordMatch = comparePassword(request.body.password, user.password)
         if (passwordMatch) {
             const token = createToken(user)
             return response
@@ -57,21 +65,22 @@ export default class Auth {
             throw createError.Unauthorized("Email/password not valid");
           }
         } catch (error) {
-            return next(createError.BadRequest("Invalid Email/password"));
+            if (error.isJoi === true) error.status = 422;
+            next(error)
         }
         }
     static async confirmEmail (request, response, next) {
         try {
             const { token } = request.params
             const decode = verifyToken(token)
-            const user = await User.findOne({ _id: decode})
+            const user = await User.findOne({ _id: decode.payload})
             if (!user) {
                 throw createError.BadRequest(`Account doesn't exist`);
             }
             if (user.blocked) {
                 throw createError.Unauthorized(`Account with email: ${user.email} has been blocked, contact Administrator`);
             }
-            await User.findByIdAndUpdate({_id: decode.id}, { emailConfirm: true })
+            await User.findByIdAndUpdate({_id: decode.payload}, { emailConfirm: true })
             return response.status(200).send("Account Activated succesfully!!")
             } catch (error) {
               next(error);
@@ -92,7 +101,7 @@ export default class Auth {
             const options = {
                 mail: result.email,
                 subject: 'Password reset!',
-                email: '../../email/forgotPassword.ejs',
+                email: '../email/forgotPassword.ejs',
                 variables: { name: user.name, link: link }
             }
             await Mail(options)
@@ -119,7 +128,7 @@ export default class Auth {
             const options = {
                 mail: result.email,
                 subject: 'Confirm your email',
-                email: '../../email/welcome.ejs',
+                email: '../email/welcome.ejs',
                 variables: { name: user.name, link: link }
             }
             await Mail(options)
@@ -155,7 +164,13 @@ export default class Auth {
         }
         static async usersMe (request, response, next) {
             try {
-            const user = verifyToken()
+                const userData = {
+                    _id: request.user._id,
+                    name: request.user.name,
+                    email: request.user.email,
+                    role: request.user.role,
+                }
+                return response.send(userData)
             } catch (error) {
                 if (error.isJoi === true) error.status = 422;
                 next(error)
@@ -186,7 +201,7 @@ export default class Auth {
                     const options = {
                         mail: result.myMail,
                         subject: `Message from ${result.name}`,
-                        email: '../../email/general.ejs',
+                        email: '../email/general.ejs',
                         variables: { message: html }
                     }
                     await Mail(options)

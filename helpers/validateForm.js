@@ -1,7 +1,8 @@
 import Joi from "joi";
+import permissions from '../config/permission'
 
 const authSchema = Joi.object({
-  name: Joi.string().required().min(3).max(45).empty().messages({
+  name: Joi.string().alphanum().required().min(3).max(45).empty().trim().lowercase().messages({
     "any.required": "Sorry, name is required",
     "string.empty": "name cannot be an empty field",
     "string.min":
@@ -144,8 +145,44 @@ const deedSchema = Joi.object({
       .min(10)
       .max(1024)
       .messages({
-        "any.required": "Sorry, deed is required",
-        "string.empty": "Sorry, deed cannot be an empty field",
+        "any.required": "Sorry, description is required",
+        "string.empty": "Sorry, description cannot be an empty field",
+        "string.min": "description should have a minimum length of 10",
+        "string.max": "description should have a maximum length of 1024",
+      })
+  });
+
+
+const roleSchema = Joi.object({
+    name: Joi.string().trim().lowercase().required().min(3).max(20).empty().messages({
+      "any.required": "Sorry, name is required",
+      "string.empty": "name cannot be an empty field",
+      "string.min":
+      "please name should have a minimum length of 3",
+      "string.max":
+      "name should have a maximum length of 20",
+    }),
+  
+    permission: Joi.array()
+      .items(Joi.string()
+      .valid(...permissions))
+      .required()
+      .unique()
+      .messages({
+        "array.length": `Permissions can not be more than ${permissions.length}`,
+        "array.min":
+        "please permission should contain atleast 1 permission",
+        "any.required": "Sorry, permission is required",
+      }),
+
+      description: Joi.string()
+      .required()
+      .empty()
+      .min(10)
+      .max(1024)
+      .messages({
+        "any.required": "Sorry, description is required",
+        "string.empty": "Sorry, description cannot be an empty field",
         "string.min": "description should have a minimum length of 10",
         "string.max": "description should have a maximum length of 1024",
       })
@@ -244,4 +281,5 @@ export { authSchema,
          passwordSchema,
          deedSchema,
          approvalSchema,
-         randomMailchema }
+         randomMailchema,
+         roleSchema }
