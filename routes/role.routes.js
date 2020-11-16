@@ -13,6 +13,6 @@ router.post('/roles', Authenticate, Permit('roles.manage'), createRole);
 router.get('/roles', Authenticate, Permit('roles.view'), getRoles);
 router.put('/role/:id', Authenticate, Permit('roles.manage'), editRole);
 router.delete('/role/:id', Authenticate, Permit('roles.manage'), deleteRole);
-router.get('/role/:id', Authenticate, getRole);
+router.get('/role/:id', Authenticate, Permit('roles.view'), getRole);
 
 export default router;
