@@ -13,7 +13,7 @@ export default class Deeds {
                 location: result.location,
                 date: result.date,
                 description: result.description,
-                CreadtedBy: '5fa674cb935bec17689eebb1'
+                CreadtedBy: request.user._id
             }
             let deed = new Deed(deedData)
             await deed.save()
@@ -21,7 +21,6 @@ export default class Deeds {
             .status(200)
             .send(`Deed Posted!, waiting approval`)
             } catch (error) {
-                console.log(error)
              if (error.isJoi === true) error.status = 422;
              next(error)
             }

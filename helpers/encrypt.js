@@ -7,7 +7,6 @@ export default class Encrypt {
     }
 
     static comparePassword (password, comparePassword) {
-        const salt = bycrypt.genSaltSync(10)
-        return bycrypt.hashSync(password, salt)
+        return bycrypt.compareSync(password, comparePassword);
     }
 }

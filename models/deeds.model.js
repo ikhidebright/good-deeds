@@ -5,6 +5,7 @@ const deed = new Schema({
     location: { type: String, required: true },
     date: { type: String, required: true },
     description: { type: String, required: true },
+    images: { type: Schema.Types.ObjectId, ref: 'Image' },
     approved: { type: Boolean, default: null },
     CreatedDate: { type: Date, default: Date.now },
     CreadtedBy: { type: Schema.Types.ObjectId, ref: 'User' },
