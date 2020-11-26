@@ -2,7 +2,7 @@ import Joi from "joi";
 import permissions from '../config/permission'
 
 const authSchema = Joi.object({
-  name: Joi.string().alphanum().required().min(3).max(45).empty().trim().lowercase().messages({
+  name: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
     "any.required": "Sorry, name is required",
     "string.empty": "name cannot be an empty field",
     "string.min":

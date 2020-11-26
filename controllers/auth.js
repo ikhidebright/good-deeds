@@ -5,6 +5,8 @@ import Encrypt from '../helpers/encrypt'
 import { authSchema, emailSchema, passwordSchema, randomMailchema } from '../helpers/validateForm'
 import Token from '../helpers/token'
 const { hashPassword, comparePassword } = Encrypt
+import client from '../config/client'
+const { clientUrl } = client
 const { createToken, verifyToken } = Token
 import Mail from '../helpers/mailer'
 
@@ -25,11 +27,11 @@ export default class Auth {
             let user = new User(result)
             let data = await user.save()
             let token = createToken(data._id)
-            let link = `http://localhost:3000/confirm-account/${token}`
+            let link = `${clientUrl}confirm-account/${token}`
             const options = {
                 mail: result.email,
                 subject: 'Welcome to Good Deeds!, confirm your email',
-                email: '../email/welcome.ejs',
+                email: '../email/welcome.html',
                 variables: { name: result.name, link: link }
             }
             await Mail(options)
@@ -97,11 +99,11 @@ export default class Auth {
                 throw createError.Unauthorized(`Account with email: ${result.email} has been blocked, contact Administrator`);
             }
             const token = createToken(user)
-            const link = `http://localhost:3000/pass-reset/${token}/${user._id}`
+            const link = `${clientUrl}pass-reset/${token}/${user._id}`
             const options = {
                 mail: result.email,
                 subject: 'Password reset!',
-                email: '../email/forgotPassword.ejs',
+                email: '../email/forgotPassword.html',
                 variables: { name: user.name, link: link }
             }
             await Mail(options)
@@ -124,11 +126,11 @@ export default class Auth {
                 throw createError.Unauthorized(`Account with email: ${result.email} has been blocked, contact Administrator`);
             }
             const token = createToken(user._id)
-            const link = `http://localhost:3000/confirm-account/${token}`
+            const link = `${clientUrl}confirm-account/${token}`
             const options = {
                 mail: result.email,
                 subject: 'Confirm your email',
-                email: '../email/welcome.ejs',
+                email: '../email/welcome.html',
                 variables: { name: user.name, link: link }
             }
             await Mail(options)
