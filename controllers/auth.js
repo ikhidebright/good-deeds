@@ -49,13 +49,13 @@ export default class Auth {
         const result = await emailSchema.validateAsync(emailVerify)
         const user = await User.findOne({ email: result.email }).populate({path: 'role', select: 'name description _id'})
         if (!user) {
-            throw createError.Conflict(`Account doesn't exist`);
+            throw createError.Conflict(`Email/password not valid`);
         }
         if (user.blocked) {
             throw createError.Conflict(`Account with email: ${result.email} has been blocked, contact Administrator`);
         }
         if (!user.emailConfirm) {
-            throw createError.Conflict(`Please confirm you email: ${result.email} before you can login`);
+            throw createError.Conflict(`Please confirm your email: ${result.email} before you can login`);
         }
         const passwordMatch = comparePassword(request.body.password, user.password)
         if (passwordMatch) {
@@ -82,6 +82,9 @@ export default class Auth {
             if (user.blocked) {
                 throw createError.Unauthorized(`Account with email: ${user.email} has been blocked, contact Administrator`);
             }
+            if (user.emailConfirm) {
+                throw createError.Unauthorized(`Account with email: ${user.email} has already been confirmed`);
+            }
             await User.findByIdAndUpdate({_id: decode.payload}, { emailConfirm: true })
             return response.status(200).send("Account Activated succesfully!!")
             } catch (error) {
@@ -93,12 +96,15 @@ export default class Auth {
             const result = await emailSchema.validateAsync(request.body)
             const user = await User.findOne({ email: result.email })
             if (!user) {
-                throw createError.BadRequest(`Account doesn't exist`);
+                throw createError.BadRequest(`Error finding account with Email: ${result.email}`);
             }
             if (user.blocked) {
                 throw createError.Unauthorized(`Account with email: ${result.email} has been blocked, contact Administrator`);
             }
-            const token = createToken(user)
+            if (!user.emailConfirm) {
+                throw createError.Conflict(`Please confirm your email: ${result.email} before you can request password change`);
+            }
+            const token = createToken(user, user.password)
             const link = `${clientUrl}pass-reset/${token}/${user._id}`
             const options = {
                 mail: result.email,
@@ -125,6 +131,9 @@ export default class Auth {
             if (user.blocked) {
                 throw createError.Unauthorized(`Account with email: ${result.email} has been blocked, contact Administrator`);
             }
+            if (user.emailConfirm) {
+                throw createError.Unauthorized(`Account with email: ${result.email} has already been confirmed`);
+            }
             const token = createToken(user._id)
             const link = `${clientUrl}confirm-account/${token}`
             const options = {
@@ -148,12 +157,12 @@ export default class Auth {
         const { token, id } = request.params
         const user = await User.findOne({ _id: id })
         if (!user) {
-            throw createError.BadRequest(`Account doesn't exist`);
+            throw createError.BadRequest(`Error finding account with Email: ${result.email}`);
         }
         if (user.blocked) {
             throw createError.Unauthorized(`Account with email: ${result.email} has been blocked, contact Administrator`);
         }
-        verifyToken(token)
+        verifyToken(token, user.password)
         user.password = hashPassword(result.password)
         await user.save()
         return response

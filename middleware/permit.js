@@ -8,7 +8,7 @@ export default function (permit) {
     const permissions = role.permission
     const hasPermit = _.includes(permissions, permit)
     if (!hasPermit) {
-        return response.status(401).send("Unauthorized access!")
+        return response.status(403).send("Unauthorized access!")
     }
     request.user = request.user
     next()
