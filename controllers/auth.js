@@ -14,10 +14,14 @@ export default class Auth {
    static async register (request, response, next) {
        try {
             const result = await authSchema.validateAsync(request.body)
-            const userExist = await User.findOne({ email: result.email })
+            const emailExist = await User.findOne({ email: result.email })
+            const usernameExist = await User.findOne({ username: result.username })
             const role = await Roles.findOne({ name: 'user' })
-            if (userExist) {
+            if (emailExist) {
                 throw createError.BadRequest(`${result.email} is already in use`);
+            } 
+            if (usernameExist) {
+                throw createError.BadRequest(`${result.username} is already in use`);
             } 
             if (!role) {
                 throw createError.BadRequest(`An Error occured please contact support`);
@@ -32,7 +36,7 @@ export default class Auth {
                 mail: result.email,
                 subject: 'Welcome to Good Deeds!, confirm your email',
                 email: '../email/welcome.html',
-                variables: { name: result.name, link: link }
+                variables: { name: result.username, link: link }
             }
             await Mail(options)
             return response
@@ -110,7 +114,7 @@ export default class Auth {
                 mail: result.email,
                 subject: 'Password reset!',
                 email: '../email/forgotPassword.html',
-                variables: { name: user.name, link: link }
+                variables: { name: user.username, link: link }
             }
             await Mail(options)
             return response
@@ -140,7 +144,7 @@ export default class Auth {
                 mail: result.email,
                 subject: 'Confirm your email',
                 email: '../email/welcome.html',
-                variables: { name: user.name, link: link }
+                variables: { name: user.username, link: link }
             }
             await Mail(options)
             return response
@@ -177,9 +181,10 @@ export default class Auth {
             try {
                 const userData = {
                     _id: request.user._id,
-                    name: request.user.name,
+                    username: request.user.username,
                     email: request.user.email,
                     role: request.user.role,
+                    profilePic: request.user.profilePic
                 }
                 return response.send(userData)
             } catch (error) {

@@ -2,11 +2,11 @@ import Joi from "joi";
 import permissions from '../config/permission'
 
 const authSchema = Joi.object({
-  name: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
-    "any.required": "Sorry, name is required",
-    "string.empty": "name cannot be an empty field",
+  username: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
+    "any.required": "Sorry, username is required",
+    "string.empty": "username cannot be an empty field",
     "string.min":
-    "name should have a minimum length of 3 and a maximum length of 45",
+    "username should have a minimum length of 3 and a maximum length of 45",
   }),
   email: Joi.string()
     .required()
@@ -125,6 +125,12 @@ const deedSchema = Joi.object({
       "pleasem deed should have a minimum length of 20",
       "string.max":
       "deed should have a maximum length of 400",
+    }),
+    name: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
+      "any.required": "Sorry, name is required",
+      "string.empty": "name cannot be an empty field",
+      "string.min":
+      "name should have a minimum length of 3 and a maximum length of 45",
     }),
     location: Joi.string().required().empty().messages({
       "any.required": "Sorry, location is required",

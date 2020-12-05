@@ -15,6 +15,7 @@ export default class Deeds {
                 deed: result.deed,
                 location: result.location,
                 date: result.date,
+                name: result.name,
                 description: result.description,
                 CreadtedBy: request.user._id
             }
