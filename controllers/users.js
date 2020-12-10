@@ -2,7 +2,7 @@ import { User } from "../models/user.model";
 import client from "../config/client";
 const { clientUrl, api, users_end_point } = client;
 import createError from "http-errors";
-import { deedSchema, approvalSchema } from "../helpers/validateForm";
+import { bulkUserMailSchema } from "../helpers/validateForm";
 import Mail from "../helpers/mailer";
 import _ from "lodash";
 
@@ -77,7 +77,6 @@ export default class Users {
       next(error);
     }
   }
-
   static async getUserByUsername(request, response, next) {
     try {
       let { username } = request.params;
@@ -99,4 +98,26 @@ export default class Users {
       next(error);
     }
   }
+  static async sendUsersMail (request, response, next) {
+    try {
+         const result = await bulkUserMailSchema.validateAsync(request.body)
+         const { subject, userDetails, message } = result
+         console.log(userDetails)
+         await userDetails.forEach( async (user) => {
+           const options = {
+               mail: user.email,
+               subject: subject,
+               email: '../email/bulkUserMail.html',
+               variables: { username: user.username, message: message }
+           }
+           await Mail(options)
+         })
+         return response
+         .status(200)
+         .send("Mail Successfully Sent!")
+         } catch (error) {
+          if (error.isJoi === true) error.status = 422;
+          next(error)
+         }
+     }
 }

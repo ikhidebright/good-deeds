@@ -158,6 +158,60 @@ const deedSchema = Joi.object({
       })
   });
 
+  // use this in the bulk emailing schema
+let userDetailsForBulkMailing = Joi.object().keys({
+  username: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
+    "any.required": "Sorry, username is required",
+    "string.empty": "username cannot be an empty field",
+    "string.min":
+    "username should have a minimum length of 3 and a maximum length of 45",
+  }),
+  email: Joi.string()
+    .required()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net", "uk", "co", "io"] },
+    })
+    .lowercase()
+    .min(5)
+    .max(100)
+    .empty()
+    .messages({
+      "any.required": "Sorry, email is required",
+      "string.empty": "Sorry, Email cannot be an empty field",
+      "string.email": "Please enter a valid email",
+    })
+})
+
+const bulkUserMailSchema = Joi.object({
+    subject: Joi.string().trim().lowercase().required().min(3).max(20).empty().messages({
+      "any.required": "Sorry, subject is required",
+      "string.empty": "subject cannot be an empty field",
+      "string.min":
+      "please subject should have a minimum length of 3",
+      "string.max":
+      "subject should have a maximum length of 20",
+    }),
+
+    userDetails: Joi.array()
+    .items(userDetailsForBulkMailing)
+    .required()
+    .messages({
+      "any.required": "user details are required",
+    }),
+
+      message: Joi.string()
+      .required()
+      .empty()
+      .min(10)
+      .max(1024)
+      .messages({
+        "any.required": "Sorry, message is required",
+        "string.empty": "Sorry, message cannot be an empty field",
+        "string.min": "message should have a minimum length of 10",
+        "string.max": "message should have a maximum length of 1024",
+      })
+  });
 
 const roleSchema = Joi.object({
     name: Joi.string().trim().lowercase().required().min(3).max(20).empty().messages({
@@ -288,4 +342,5 @@ export { authSchema,
          deedSchema,
          approvalSchema,
          randomMailchema,
-         roleSchema }
+         roleSchema,
+         bulkUserMailSchema }
