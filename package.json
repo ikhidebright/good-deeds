@@ -4,6 +4,7 @@
   "description": "This is the backend for the good deeds project by NRA",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint controllers/  --fix",
     "dev": "nodemon --exec babel-node index.js",
     "test": "jest",
     "start": "nodemon --exec babel-node index.js"
