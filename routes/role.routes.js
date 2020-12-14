@@ -7,12 +7,13 @@ const { createRole,
         getRoles,
         editRole,
         deleteRole,
-        getRole } = Role
+        getRole, getPermissions } = Role
 
-router.post('/roles', Authenticate, Permit('roles.manage'), createRole);
-router.get('/roles', Authenticate, Permit('roles.view'), getRoles);
-router.put('/role/:id', Authenticate, Permit('roles.manage'), editRole);
-router.delete('/role/:id', Authenticate, Permit('roles.manage'), deleteRole);
-router.get('/role/:id', Authenticate, Permit('roles.view'), getRole);
+router.post('/roles', Authenticate, createRole);
+router.get('/permissions', Authenticate, getPermissions);
+router.get('/roles', Authenticate, getRoles);
+router.put('/role/:id', Authenticate, editRole);
+router.delete('/role/:id', Authenticate, deleteRole);
+router.get('/role/:id', Authenticate, getRole);
 
 export default router;

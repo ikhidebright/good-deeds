@@ -120,4 +120,24 @@ export default class Users {
           next(error)
          }
      }
+         static async editUser (request, response, next) {
+        try {
+            const result = await emailSchema.validateAsync(request.body)
+            const { id } = request.params
+            const user = await User.findOne({ _id: id })
+            if (!user) {
+                throw createError.BadRequest(`User doesn't exist`);
+            }
+            if (result.username) user.username = result.username
+            if (result.email) user.email = result.email
+            if (result.role) user.role = result.role
+            if (result.blocked) user.blocked = result.blocked
+            if (result.profilePic) user.profilePic = result.profilePic
+            user.ModifiedBy = request.user._id
+            await User.findByIdAndUpdate({_id: user.id}, user)
+            return response.status(200).send("User updated succesfully!!")
+            } catch (error) {
+              next(error);
+            }
+        }
 }

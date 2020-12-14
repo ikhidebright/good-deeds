@@ -1,6 +1,7 @@
 import { Roles } from '../models/roles.model'
 import createError from "http-errors";
 import { roleSchema } from '../helpers/validateForm'
+import permissions from '../config/permission'
 
 export default class Role {
     static async createRole (request, response, next) {
@@ -30,6 +31,8 @@ export default class Role {
          try {
          const role = await Roles
          .find({})
+         .sort({"CreatedDate": 1})
+         .exec();
          if (!role) {
              throw createError.Conflict(`No Role exist`);
          }
@@ -97,6 +100,15 @@ export default class Role {
              .send(role)
              } catch (error) {
              if (error.isJoi === true) error.status = 422;
+             next(error)
+             }
+         }
+     static async getPermissions (request, response, next) {
+         try {
+             return response
+             .status(200)
+             .send(permissions)
+             } catch (error) {
              next(error)
              }
          }

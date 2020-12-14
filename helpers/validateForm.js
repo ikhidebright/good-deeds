@@ -1,6 +1,35 @@
 import Joi from "joi";
 import permissions from '../config/permission'
 
+const userEditSchema = Joi.object({
+  username: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
+    "any.required": "Sorry, username is required",
+    "string.empty": "username cannot be an empty field",
+    "string.min":
+    "username should have a minimum length of 3 and a maximum length of 45",
+  }),
+  role: Joi.string().required().empty().messages({
+    "any.required": "Sorry, username is required",
+    "string.empty": "username cannot be an empty field",
+  }),
+  blocked: Joi.boolean(),
+  profilePic: Joi.string(),
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net", "uk", "co", "io"] },
+    })
+    .lowercase()
+    .min(5)
+    .max(100)
+    .empty()
+    .messages({
+      "any.required": "Sorry, email is required",
+      "string.empty": "Sorry, Email cannot be an empty field",
+      "string.email": "Please enter a valid email",
+    })
+});
+
 const authSchema = Joi.object({
   username: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
     "any.required": "Sorry, username is required",
@@ -215,12 +244,12 @@ const bulkUserMailSchema = Joi.object({
 
 const roleSchema = Joi.object({
     name: Joi.string().trim().lowercase().required().min(3).max(20).empty().messages({
-      "any.required": "Sorry, name is required",
-      "string.empty": "name cannot be an empty field",
+      "any.required": "Sorry, Role Name is required",
+      "string.empty": "Role Name cannot be an empty field",
       "string.min":
-      "please name should have a minimum length of 3",
+      "Please Role Name should have a minimum length of 3",
       "string.max":
-      "name should have a maximum length of 20",
+      "Role Name should have a maximum length of 20",
     }),
   
     permission: Joi.array()
@@ -231,7 +260,7 @@ const roleSchema = Joi.object({
       .messages({
         "array.length": `Permissions can not be more than ${permissions.length}`,
         "array.min":
-        "please permission should contain atleast 1 permission",
+        "Please permission should contain atleast 1 permission",
         "any.required": "Sorry, permission is required",
       }),
 
