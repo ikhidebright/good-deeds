@@ -23,7 +23,7 @@ export default class Users {
         ],
       };
       page = page < 1 ? 1 : Number(page);
-      let limit = 2;
+      let limit = 20;
       let query = search ? searchQueries : {};
       // get total documents in the Products collection
       let count = await User.countDocuments(query);
@@ -119,8 +119,8 @@ export default class Users {
           if (error.isJoi === true) error.status = 422;
           next(error)
          }
-     }
-         static async editUser (request, response, next) {
+  }
+  static async editUser (request, response, next) {
         try {
             const result = await emailSchema.validateAsync(request.body)
             const { id } = request.params
@@ -139,5 +139,5 @@ export default class Users {
             } catch (error) {
               next(error);
             }
-        }
+  }
 }

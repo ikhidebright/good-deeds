@@ -136,6 +136,31 @@ const passwordSchema = Joi.object({
     confirm_password: Joi.ref('password'),
   });
 
+const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string()
+    .required()
+    .empty()
+    .messages({
+      "any.required": "Sorry, Current password is required",
+      "string.empty": "Sorry, Current password cannot be an empty field",
+    }),
+    newPassword: Joi.string()
+    .required()
+    .empty()
+    .min(5)
+    .max(1024)
+    .regex(/^[a-zA-Z0-9]{3,30}$/)
+    .messages({
+      "any.required": "Sorry, New password is required",
+      "string.pattern.base":
+      "New password must contain only from a-z or A-Z or 0-9.",
+      "string.empty": "Sorry, New password cannot be an empty field",
+      "string.min": "New password should have a minimum length of 5",
+    }),
+
+    confirmNewPassword: Joi.ref('newPassword'),
+  });
+
 const approvalSchema = Joi.object({
     approved: Joi.boolean()
     .required()
@@ -372,4 +397,5 @@ export { authSchema,
          approvalSchema,
          randomMailchema,
          roleSchema,
-         bulkUserMailSchema }
+         bulkUserMailSchema,
+         changePasswordSchema }

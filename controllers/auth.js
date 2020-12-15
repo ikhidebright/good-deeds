@@ -2,7 +2,7 @@ import { User } from '../models/user.model'
 import { Roles } from '../models/roles.model'
 import createError from "http-errors";
 import Encrypt from '../helpers/encrypt'
-import { authSchema, emailSchema, passwordSchema, randomMailchema } from '../helpers/validateForm'
+import { authSchema, emailSchema, passwordSchema, randomMailchema, changePasswordSchema } from '../helpers/validateForm'
 import Token from '../helpers/token'
 const { hashPassword, comparePassword } = Encrypt
 import client from '../config/client'
@@ -69,6 +69,43 @@ export default class Auth {
             .send(token)
         } else {
             throw createError.BadRequest("Email/password not valid");
+          }
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422;
+            next(error)
+        }
+        }
+    static async changePassword (request, response, next) {
+        try {
+        let passwordDeatails = {
+            currentPassword:request.body.currentPassword,
+            newPassword:request.body.newPassword,
+            confirmNewPassword:request.body.confirmNewPassword
+        }
+        let { id } = request.params
+        const result = await changePasswordSchema.validateAsync(passwordDeatails)
+        const user = await User.findOne({ _id: id })
+        if (!user) {
+            throw createError.BadRequest(`Email/password not valid`);
+        }
+        if (user.blocked) {
+            throw createError.BadRequest(`Account with email: ${user.email} has been blocked, contact Administrator`);
+        }
+        if (id !== request.user._id) {
+            throw createError.BadRequest(`You cannot change this password`);
+        }
+        if (!user.emailConfirm) {
+            throw createError.BadRequest(`Please confirm your email: ${user.email} before you can login`);
+        }
+        const passwordMatch = comparePassword(result.currentPassword, user.password)
+        if (passwordMatch) {
+            user.password = hashPassword(result.newPassword)
+            await user.save()
+            return response
+            .status(200)
+            .send('Password change successful')
+        } else {
+            throw createError.BadRequest("Incorrect Current password");
           }
         } catch (error) {
             if (error.isJoi === true) error.status = 422;

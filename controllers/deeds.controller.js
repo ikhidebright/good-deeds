@@ -35,7 +35,10 @@ export default class Deeds {
             page = !page || isNaN(page) ? 1 : Number(page)
             let nextPageUrl, prevPageUrl;
             const searchQueries = {
-                $or: [
+                $and: [
+                    { approved: true },
+                {
+                    $or: [
                     {
                       deed: { $regex: new RegExp(search), $options: "i" }
                     },
@@ -46,18 +49,20 @@ export default class Deeds {
                       location: { $regex: new RegExp(search), $options: "i" }
                     }
                   ]
+                }
+            ]
             }
             page = page < 1 ? 1 : Number(page);
-            let limit = 2;
-            let query = search ? searchQueries : {};
+            let limit = 5;
+            let query = search ? searchQueries : { approved: true };
             // get total documents in the Products collection
             let count = await Deed.countDocuments(query);
             let totalPages = Math.ceil(count/limit);
             page = page > totalPages ? totalPages : page;
             let deeds = await Deed.find(query, { __v: 0 })
-              .limit(limit * 1)
+            .limit(limit * 1)
               .skip((page - 1) * limit)
-              .populate({path: 'CreadtedBy', select: 'name email _id'})
+              .populate({path: 'CreadtedBy', select: 'username email _id profilePic'})
               .sort({"CreatedDate": 1})
               .exec();
               // delete page query from url

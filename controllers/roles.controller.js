@@ -32,7 +32,6 @@ export default class Role {
          const role = await Roles
          .find({})
          .sort({"CreatedDate": 1})
-         .exec();
          if (!role) {
              throw createError.Conflict(`No Role exist`);
          }

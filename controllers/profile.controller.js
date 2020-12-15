@@ -8,26 +8,30 @@ import _ from 'lodash'
 export default class Deeds {
     static async getUserProfileDeed (request, response, next) {
         try {
-            let { approved, page } = request.query;
+            let { page } = request.query;
             let { username } = request.params;
             const user = await User.findOne({ username: username })
+            const myProfile = request.user._id == user._id
             page = !page || isNaN(page) ? 1 : Number(page)
             // let nextPageUrl, prevPageUrl;
-            const searchQueries = {
-                CreadtedBy: user.id,
-                approved: approved
-            }
-            page = page < 1 ? 1 : Number(page);
-            let limit = 2;
+            let searchQueries = {
+              CreadtedBy: user._id
+          }
+            if (!myProfile) {
+              searchQueries.approved = true
+          }
+          page = page < 1 ? 1 : Number(page);
+            let limit = 5;
             // let query = search ? searchQueries : {};
             // get total documents in the Products collection
             let count = await Deed.countDocuments(searchQueries);
             let totalPages = Math.ceil(count/limit);
-            page = page > totalPages ? totalPages : page;
+            page = page > totalPages && totalPages != 0 ? totalPages : page;
+            console.log("myProfile", page, myProfile, request.user._id, user._id)
             let deeds = await Deed.find(searchQueries, { __v: 0 })
               .limit(limit * 1)
               .skip((page - 1) * limit)
-              .populate({path: 'CreadtedBy', select: 'name email _id username'})
+              .populate({path: 'CreadtedBy', select: 'username email _id profilePic'})
               .sort({"CreatedDate": 1})
               .exec();
               // delete page query from url
