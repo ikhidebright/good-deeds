@@ -57,6 +57,7 @@ export default class Deeds {
             response.json({
               success: true,
               deeds,
+              myProfile: myProfile
             //   totalPages: totalPages,
             //   currentPage: page,
             //   totalDeeds: count,

@@ -84,6 +84,7 @@ export default class Users {
         path: "role",
         select: "name description _id",
       });
+      const myProfile = request.user._id == user._id;
       if (!user) {
         throw createError.NotFound(`User not found`);
       }
@@ -93,51 +94,76 @@ export default class Users {
       if (!user.emailConfirm) {
         throw createError.NotFound(`User not found`);
       }
-      return response.status(200).send(user);
+      let userToSend = {
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profilePic: user.profilePic,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        address: user.address,
+        country: user.country,
+        state: user.state,
+        phoneNumber: user.phoneNumber,
+        gender: user.gender,
+        dob: user.dob,
+        maritalStatus: user.maritalStatus,
+        showBirthYear: user.showBirthYear,
+        showAddress: user.showAddress,
+        showGender: user.showGender,
+        showMarital: user.showMarital,
+        showPhone: user.showPhone,
+        myProfile: myProfile,
+        CreatedDate: user.CreatedDate,
+      }
+      if (!myProfile && !user.showGender && user.gender) delete userToSend.gender
+      if (!myProfile && !user.showMarital && user.maritalStatus) delete userToSend.maritalStatus
+      if (!myProfile && !user.showPhone && user.phoneNumber) delete userToSend.phoneNumber
+      if (!myProfile && !user.showAddress && user.address) delete userToSend.address
+      if (!myProfile && !user.showBirthYear && user.dob) delete userToSend.dob
+      return response.status(200).send(userToSend);
     } catch (error) {
       next(error);
     }
   }
-  static async sendUsersMail (request, response, next) {
+  static async sendUsersMail(request, response, next) {
     try {
-         const result = await bulkUserMailSchema.validateAsync(request.body)
-         const { subject, userDetails, message } = result
-         console.log(userDetails)
-         await userDetails.forEach( async (user) => {
-           const options = {
-               mail: user.email,
-               subject: subject,
-               email: '../email/bulkUserMail.html',
-               variables: { username: user.username, message: message }
-           }
-           await Mail(options)
-         })
-         return response
-         .status(200)
-         .send("Mail Successfully Sent!")
-         } catch (error) {
-          if (error.isJoi === true) error.status = 422;
-          next(error)
-         }
+      const result = await bulkUserMailSchema.validateAsync(request.body);
+      const { subject, userDetails, message } = result;
+      console.log(userDetails);
+      await userDetails.forEach(async (user) => {
+        const options = {
+          mail: user.email,
+          subject: subject,
+          email: "../email/bulkUserMail.html",
+          variables: { username: user.username, message: message },
+        };
+        await Mail(options);
+      });
+      return response.status(200).send("Mail Successfully Sent!");
+    } catch (error) {
+      if (error.isJoi === true) error.status = 422;
+      next(error);
+    }
   }
-  static async editUser (request, response, next) {
-        try {
-            const result = await emailSchema.validateAsync(request.body)
-            const { id } = request.params
-            const user = await User.findOne({ _id: id })
-            if (!user) {
-                throw createError.BadRequest(`User doesn't exist`);
-            }
-            if (result.username) user.username = result.username
-            if (result.email) user.email = result.email
-            if (result.role) user.role = result.role
-            if (result.blocked) user.blocked = result.blocked
-            if (result.profilePic) user.profilePic = result.profilePic
-            user.ModifiedBy = request.user._id
-            await User.findByIdAndUpdate({_id: user.id}, user)
-            return response.status(200).send("User updated succesfully!!")
-            } catch (error) {
-              next(error);
-            }
+  static async editUser(request, response, next) {
+    try {
+      const result = await emailSchema.validateAsync(request.body);
+      const { id } = request.params;
+      const user = await User.findOne({ _id: id });
+      if (!user) {
+        throw createError.BadRequest(`User doesn't exist`);
+      }
+      if (result.username) user.username = result.username;
+      if (result.email) user.email = result.email;
+      if (result.role) user.role = result.role;
+      if (result.blocked) user.blocked = result.blocked;
+      if (result.profilePic) user.profilePic = result.profilePic;
+      user.ModifiedBy = request.user._id;
+      await User.findByIdAndUpdate({ _id: user.id }, user);
+      return response.status(200).send("User updated succesfully!!");
+    } catch (error) {
+      next(error);
+    }
   }
 }

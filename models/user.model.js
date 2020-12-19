@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose"
 const gender = ['male', 'female', 'transgender', 'gender neutral', 'non-binary', 'agender', 'pangender', 'genderqueer']
-const permissions = ['male', 'female', 'transgender', 'gender neutral', 'non-binary', 'agender', 'pangender', 'genderqueer']
+const maritalStatus = ['Married', 'Widowed', 'Divorced', 'Separated', "It's Complicated"]
 
 const user = new Schema({
     username: { type: String, required: true, unique: true },
@@ -15,6 +15,7 @@ const user = new Schema({
     address: { type: String },
     country: { type: String },
     state: { type: String },
+    phoneNumber: { type: String },
     gender: { 
         type: String,
         enum: gender 
@@ -22,8 +23,13 @@ const user = new Schema({
     dob: { type: Date },
     maritalStatus: { 
         type: String,
-        enum: permissions, 
+        enum: maritalStatus, 
     },
+    showBirthYear: { type: Boolean, default: true },
+    showAddress: { type: Boolean, default: true },
+    showGender: { type: Boolean, default: true },
+    showMarital: { type: Boolean, default: true },
+    showPhone: { type: Boolean, default: true },
     CreatedDate: { type: Date, default: Date.now },
     CreadtedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     ModifiedDate: { type: Date },

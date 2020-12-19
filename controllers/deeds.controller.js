@@ -58,7 +58,7 @@ export default class Deeds {
             // get total documents in the Products collection
             let count = await Deed.countDocuments(query);
             let totalPages = Math.ceil(count/limit);
-            page = page > totalPages ? totalPages : page;
+            page = page > totalPages && totalPages != 0 ? totalPages : page;
             let deeds = await Deed.find(query, { __v: 0 })
             .limit(limit * 1)
               .skip((page - 1) * limit)

@@ -2,32 +2,32 @@ import Joi from "joi";
 import permissions from '../config/permission'
 
 const userEditSchema = Joi.object({
-  username: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
-    "any.required": "Sorry, username is required",
-    "string.empty": "username cannot be an empty field",
+  firstName: Joi.string().allow('').optional().trim().min(2).max(45).lowercase().messages({
     "string.min":
-    "username should have a minimum length of 3 and a maximum length of 45",
+    "First Name should have a minimum length of 2 and a maximum length of 45",
   }),
-  role: Joi.string().required().empty().messages({
-    "any.required": "Sorry, username is required",
-    "string.empty": "username cannot be an empty field",
+  lastName: Joi.string().allow('').optional().trim().min(2).max(45).lowercase().messages({
+    "string.min":
+    "Last Name should have a minimum length of 2 and a maximum length of 45",
   }),
-  blocked: Joi.boolean(),
-  profilePic: Joi.string(),
-  email: Joi.string()
-    .email({
-      minDomainSegments: 2,
-      tlds: { allow: ["com", "net", "uk", "co", "io"] },
-    })
-    .lowercase()
-    .min(5)
-    .max(100)
-    .empty()
-    .messages({
-      "any.required": "Sorry, email is required",
-      "string.empty": "Sorry, Email cannot be an empty field",
-      "string.email": "Please enter a valid email",
-    })
+  role: Joi.string().allow('').optional(),
+  address: Joi.string().allow('').optional(),
+  country: Joi.string().allow('').optional(),
+  state: Joi.string().allow('').optional(),
+  gender: Joi.string().allow('').optional(),
+  dob: Joi.string().allow('').optional(),
+  maritalStatus: Joi.string().allow('').optional(),
+  phoneNumber: Joi.string().min(7).max(15).allow('').optional().messages({
+    "string.min":
+    "Phone number should have a minimum length of 7 and a maximum length of 15"
+  }),
+  blocked: Joi.boolean().allow('').optional(),
+  profilePic: Joi.string().allow('').optional(),
+  showBirthYear: Joi.boolean(),
+  showAddress: Joi.boolean(),
+  showGender: Joi.boolean(),
+  showMarital: Joi.boolean(),
+  showPhone: Joi.boolean()
 });
 
 const authSchema = Joi.object({
@@ -398,4 +398,5 @@ export { authSchema,
          randomMailchema,
          roleSchema,
          bulkUserMailSchema,
-         changePasswordSchema }
+         changePasswordSchema,
+         userEditSchema }

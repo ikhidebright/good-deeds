@@ -12,9 +12,9 @@ const { createDeed,
 
 router.post('/deeds', Authenticate, createDeed);
 router.get('/deeds', getDeeds);
-router.get('/deed/:id', getDeed);
-router.delete('/deed/:id', Authenticate, deleteDeed);
-router.post('/deed/:id', Authenticate, editDeed);
-router.post('/approve/deed/:id', Authenticate, Permit('roles.view'), approveDeed);
+router.get('/deed/:id', Permit('deeds.view'), getDeed);
+router.delete('/deed/:id', Authenticate, Permit('deeds.manage'), deleteDeed);
+router.post('/deed/:id', Authenticate, Permit('deeds.manage'), editDeed);
+router.post('/approve/deed/:id', Authenticate, Permit('deeds.manage'), approveDeed);
 
 export default router;

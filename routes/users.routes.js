@@ -7,7 +7,7 @@ const { getUsers, getUserByUsername, sendUsersMail, editUser } = Users
 
 router.get('/users', Authenticate, Permit('user.view'), getUsers);
 router.get('/user/:username', Authenticate, getUserByUsername);
-router.patch('/user/:id', Authenticate, editUser);
-router.post('/users/mailer', Authenticate, sendUsersMail);
+router.patch('/user/:id', Authenticate, Permit('user.manage'), editUser);
+router.post('/users/mailer', Authenticate, Permit('user.manage'), sendUsersMail);
 
 export default router;
