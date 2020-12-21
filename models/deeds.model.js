@@ -8,6 +8,7 @@ const deed = new Schema({
     description: { type: String, required: true },
     files: { type: Schema.Types.ObjectId, ref: 'Files' },
     approved: { type: Boolean, default: null },
+    likes: { type: Number, default: 0 },
     CreatedDate: { type: Date, default: Date.now },
     CreadtedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     ModifiedDate: { type: Date },

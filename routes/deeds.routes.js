@@ -8,13 +8,15 @@ const { createDeed,
         getDeed,
         deleteDeed,
         editDeed,
-        approveDeed } = Deeds
+        approveDeed,
+        likeDeed } = Deeds
 
 router.post('/deeds', Authenticate, createDeed);
-router.get('/deeds', getDeeds);
+router.get('/deeds', Authenticate, getDeeds);
 router.get('/deed/:id', Permit('deeds.view'), getDeed);
+router.patch('/like/deed/:id', Authenticate, likeDeed);
 router.delete('/deed/:id', Authenticate, Permit('deeds.manage'), deleteDeed);
 router.post('/deed/:id', Authenticate, Permit('deeds.manage'), editDeed);
-router.post('/approve/deed/:id', Authenticate, Permit('deeds.manage'), approveDeed);
+router.patch('/approve/deed/:id', Authenticate, Permit('deeds.manage'), approveDeed);
 
 export default router;

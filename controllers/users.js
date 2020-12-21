@@ -13,12 +13,17 @@ export default class Users {
       page = !page || isNaN(page) ? 1 : Number(page);
       let nextPageUrl, prevPageUrl;
       const searchQueries = {
-        $or: [
+        $and: [
+          { emailConfirm: true },
           {
-            username: { $regex: new RegExp(search), $options: "i" },
-          },
-          {
-            email: { $regex: new RegExp(search), $options: "i" },
+            $or: [
+              {
+                username: { $regex: new RegExp(search), $options: "i" },
+              },
+              {
+                email: { $regex: new RegExp(search), $options: "i" },
+              },
+            ],
           },
         ],
       };
@@ -115,12 +120,16 @@ export default class Users {
         showPhone: user.showPhone,
         myProfile: myProfile,
         CreatedDate: user.CreatedDate,
-      }
-      if (!myProfile && !user.showGender && user.gender) delete userToSend.gender
-      if (!myProfile && !user.showMarital && user.maritalStatus) delete userToSend.maritalStatus
-      if (!myProfile && !user.showPhone && user.phoneNumber) delete userToSend.phoneNumber
-      if (!myProfile && !user.showAddress && user.address) delete userToSend.address
-      if (!myProfile && !user.showBirthYear && user.dob) delete userToSend.dob
+      };
+      if (!myProfile && !user.showGender && user.gender)
+        delete userToSend.gender;
+      if (!myProfile && !user.showMarital && user.maritalStatus)
+        delete userToSend.maritalStatus;
+      if (!myProfile && !user.showPhone && user.phoneNumber)
+        delete userToSend.phoneNumber;
+      if (!myProfile && !user.showAddress && user.address)
+        delete userToSend.address;
+      if (!myProfile && !user.showBirthYear && user.dob) delete userToSend.dob;
       return response.status(200).send(userToSend);
     } catch (error) {
       next(error);
@@ -162,6 +171,27 @@ export default class Users {
       user.ModifiedBy = request.user._id;
       await User.findByIdAndUpdate({ _id: user.id }, user);
       return response.status(200).send("User updated succesfully!!");
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async blockUser(request, response, next) {
+    try {
+      const { id } = request.params;
+      const user = await User.findOne({ _id: id });
+      let blockValue = !user.blocked;
+      const userSaved = await User.findOneAndUpdate(
+        {
+          _id: id,
+        },
+        {
+          $set: { blocked: blockValue },
+        },
+        {
+          new: true,
+        }
+      );
+      return response.status(200).send(userSaved);
     } catch (error) {
       next(error);
     }
