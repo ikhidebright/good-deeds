@@ -4,6 +4,6 @@ import Authenticate from '../middleware/auth';
 import upload from '../middleware/uploader';
 import { uploadFile } from '../controllers/upload'
 
-router.post('/upload', uploadFile);
+router.post('/upload', upload.single('image'), uploadFile);
 
 export default router;

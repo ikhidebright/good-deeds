@@ -3,34 +3,23 @@ const multer = require('multer');
 const multerS3 = require('multer-s3');
 
 aws.config.update({
-  secretAccessKey: process.env.AWSSecretKey,
-  accessKeyId: process.env.AWSAccessKeyId,
-  region: 'us-west-1'
+  secretAccessKey: '41Wd6tgUydXFUJ2LXO9zhUiKaf1//L5f2ri2AZ9H',
+  accessKeyId: 'AKIAJAWZX4SBJ3XVPZFA'
 });
-
 const s3 = new aws.S3();
 
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type, only JPEG and PNG is allowed!'), false);
-  }
-}
-
 const upload = multer({
-  fileFilter,
   storage: multerS3({
+    s3: s3,
+    bucket: 'my-amazon-v1',
     acl: 'public-read',
-    s3,
-    bucket: process.env.s3bucket,
-    metadata: function (req, file, cb) {
-      cb(null, {fieldName: 'TESTING_METADATA'});
+    metadata: (req, file, cb) => {
+      cb(null, { fieldName: file.fieldname });
     },
-    key: function (req, file, cb) {
-      cb(null, Date.now().toString())
-    }
-  })
+    key: (req, file, cb) => {
+      cb(null, Date.now().toString());
+    },
+  }),
 });
 
 module.exports = upload;

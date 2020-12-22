@@ -21,7 +21,7 @@ export default class Deeds {
               searchQueries.approved = true
           }
           page = page < 1 ? 1 : Number(page);
-            let limit = 5;
+            let limit = 20;
             // let query = search ? searchQueries : {};
             // get total documents in the Products collection
             let count = await Deed.countDocuments(searchQueries);
