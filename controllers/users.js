@@ -28,16 +28,17 @@ export default class Users {
         ],
       };
       page = page < 1 ? 1 : Number(page);
-      let limit = 20;
+      let limit = 2;
       let query = search ? searchQueries : {};
       // get total documents in the Products collection
       let count = await User.countDocuments(query);
       let totalPages = Math.ceil(count / limit);
       page = page > totalPages ? totalPages : page;
       let users = await User.find(query, { __v: 0 })
-        .limit(limit * 1)
+      .limit(limit * 1)
         .skip((page - 1) * limit)
         .sort({ CreatedDate: 1 })
+        .populate({ path: 'role' })
         .exec();
       // delete page query from url
       delete request.query.page;
@@ -79,6 +80,7 @@ export default class Users {
         nextPageUrl: nextPageUrl,
       });
     } catch (error) {
+      console.log(error)
       next(error);
     }
   }
@@ -157,17 +159,13 @@ export default class Users {
   }
   static async editUser(request, response, next) {
     try {
-      const result = await emailSchema.validateAsync(request.body);
+      const result = request.body
       const { id } = request.params;
       const user = await User.findOne({ _id: id });
       if (!user) {
         throw createError.BadRequest(`User doesn't exist`);
       }
-      if (result.username) user.username = result.username;
-      if (result.email) user.email = result.email;
       if (result.role) user.role = result.role;
-      if (result.blocked) user.blocked = result.blocked;
-      if (result.profilePic) user.profilePic = result.profilePic;
       user.ModifiedBy = request.user._id;
       await User.findByIdAndUpdate({ _id: user.id }, user);
       return response.status(200).send("User updated succesfully!!");

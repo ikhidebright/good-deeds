@@ -172,11 +172,11 @@ const approvalSchema = Joi.object({
   });
 
 const deedSchema = Joi.object({
-    deed: Joi.string().required().min(20).max(400).empty().messages({
+    deed: Joi.string().required().min(20).max(1024).empty().messages({
       "any.required": "Sorry, deed is required",
       "string.empty": "deed cannot be an empty field",
       "string.min":
-      "pleasem deed should have a minimum length of 20",
+      "deed should have a minimum length of 20",
       "string.max":
       "deed should have a maximum length of 400",
     }),
@@ -197,18 +197,6 @@ const deedSchema = Joi.object({
       .messages({
         "any.required": "Sorry, date is required",
         "string.empty": "Sorry, date must be set",
-      }),
-
-      description: Joi.string()
-      .required()
-      .empty()
-      .min(10)
-      .max(1024)
-      .messages({
-        "any.required": "Sorry, description is required",
-        "string.empty": "Sorry, description cannot be an empty field",
-        "string.min": "description should have a minimum length of 10",
-        "string.max": "description should have a maximum length of 1024",
       })
   });
 
