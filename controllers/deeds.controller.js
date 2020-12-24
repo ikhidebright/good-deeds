@@ -59,7 +59,7 @@ export default class Deeds {
         ],
       };
       page = page < 1 ? 1 : Number(page);
-      let limit = 1;
+      let limit = 20;
       let query = search ? searchQueries : { approved: approved };
       // get total documents in the Products collection
       let count = await Deed.countDocuments(query);

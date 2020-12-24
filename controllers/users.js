@@ -28,7 +28,7 @@ export default class Users {
         ],
       };
       page = page < 1 ? 1 : Number(page);
-      let limit = 2;
+      let limit = 20;
       let query = search ? searchQueries : {};
       // get total documents in the Products collection
       let count = await User.countDocuments(query);
