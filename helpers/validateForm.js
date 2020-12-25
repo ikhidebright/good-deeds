@@ -190,6 +190,7 @@ const deedSchema = Joi.object({
       "any.required": "Sorry, location is required",
       "string.empty": "location cannot be empty",
     }),
+    files: Joi.string(),
   
       date: Joi.date()
       .required()

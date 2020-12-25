@@ -11,6 +11,7 @@ export default class Deeds {
     try {
       const result = await deedSchema.validateAsync(request.body);
       let deedData = {
+        files: result.files,
         deed: result.deed,
         location: result.location,
         date: result.date,
@@ -71,9 +72,12 @@ export default class Deeds {
       .skip((page - 1) * limit)
       .populate({
         path: "CreadtedBy",
-          select: "username email _id profilePic",
-        })
-        .exec();
+        select: "username email _id profilePic",
+      })
+      .populate({
+        path: "files"
+      })
+      .exec();
       // delete page query from url
       delete request.query.page;
       // select only queries you want
