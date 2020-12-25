@@ -1,4 +1,4 @@
-import express from'express'
+import express from "express";
 import logger from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -6,8 +6,9 @@ import mongoose from "mongoose";
 import passport from "passport";
 import createError from "http-errors";
 import dotenv from "dotenv";
-import apiRoutes from './routes/index.routes'
-import swaggerUi from 'swagger-ui-express'
+import swaggerUi from "swagger-ui-express";
+import apiRoutes from "./routes/index.routes";
+
 const swaggerDocument = require("./swagger.json");
 // swagger setUp
 
@@ -16,6 +17,8 @@ require("./config/db");
 dotenv.config();
 
 const app = express();
+
+app.use("/documents", express.static("documents"));
 
 app.use(
   "/api-docs",
@@ -28,7 +31,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/api', apiRoutes)
+app.use("/api", apiRoutes);
 
 app.get("/", (request, response) => {
   response.status(200).json({
@@ -51,8 +54,8 @@ app.use((err, request, response, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5050
+const PORT = process.env.PORT || 5050;
 
 app.listen(PORT, () => {
-    console.log(`Server available on port: ${PORT}`)
-})
+  console.log(`Server available on port: ${PORT}`);
+});
