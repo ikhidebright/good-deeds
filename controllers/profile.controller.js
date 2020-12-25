@@ -29,10 +29,10 @@ export default class Deeds {
             page = page > totalPages && totalPages != 0 ? totalPages : page;
             console.log("myProfile", page, myProfile, request.user._id, user._id)
             let deeds = await Deed.find(searchQueries, { __v: 0 })
+            .sort({CreatedDate: -1})
               .limit(limit * 1)
               .skip((page - 1) * limit)
               .populate({path: 'CreadtedBy', select: 'username email _id profilePic'})
-              .sort({"CreatedDate": 1})
               .exec();
               // delete page query from url
             //   delete request.query.page

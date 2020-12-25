@@ -35,9 +35,9 @@ export default class Users {
       let totalPages = Math.ceil(count / limit);
       page = page > totalPages ? totalPages : page;
       let users = await User.find(query, { __v: 0 })
+      .sort({ CreatedDate: -1 })
       .limit(limit * 1)
         .skip((page - 1) * limit)
-        .sort({ CreatedDate: 1 })
         .populate({ path: 'role' })
         .exec();
       // delete page query from url

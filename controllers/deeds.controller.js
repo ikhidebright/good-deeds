@@ -66,13 +66,13 @@ export default class Deeds {
       let totalPages = Math.ceil(count / limit);
       page = page > totalPages && totalPages != 0 ? totalPages : page;
       let deeds = await Deed.find(query, { __v: 0 })
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
-        .populate({
-          path: "CreadtedBy",
+      .sort({ CreatedDate: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .populate({
+        path: "CreadtedBy",
           select: "username email _id profilePic",
         })
-        .sort({ CreatedDate: 1 })
         .exec();
       // delete page query from url
       delete request.query.page;
