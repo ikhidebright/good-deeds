@@ -1,12 +1,41 @@
 import Joi from "joi";
 import permissions from '../config/permission'
 
-const authSchema = Joi.object({
-  name: Joi.string().alphanum().required().min(3).max(45).empty().trim().lowercase().messages({
-    "any.required": "Sorry, name is required",
-    "string.empty": "name cannot be an empty field",
+const userEditSchema = Joi.object({
+  firstName: Joi.string().allow('').optional().trim().min(2).max(45).lowercase().messages({
     "string.min":
-    "name should have a minimum length of 3 and a maximum length of 45",
+    "First Name should have a minimum length of 2 and a maximum length of 45",
+  }),
+  lastName: Joi.string().allow('').optional().trim().min(2).max(45).lowercase().messages({
+    "string.min":
+    "Last Name should have a minimum length of 2 and a maximum length of 45",
+  }),
+  role: Joi.string().allow('').optional(),
+  address: Joi.string().allow('').optional(),
+  country: Joi.string().allow('').optional(),
+  state: Joi.string().allow('').optional(),
+  gender: Joi.string().allow('').optional(),
+  dob: Joi.string().allow('').optional(),
+  maritalStatus: Joi.string().allow('').optional(),
+  phoneNumber: Joi.string().min(7).max(15).allow('').optional().messages({
+    "string.min":
+    "Phone number should have a minimum length of 7 and a maximum length of 15"
+  }),
+  blocked: Joi.boolean().allow('').optional(),
+  profilePic: Joi.string().allow('').optional(),
+  showBirthYear: Joi.boolean(),
+  showAddress: Joi.boolean(),
+  showGender: Joi.boolean(),
+  showMarital: Joi.boolean(),
+  showPhone: Joi.boolean()
+});
+
+const authSchema = Joi.object({
+  username: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
+    "any.required": "Sorry, username is required",
+    "string.empty": "username cannot be an empty field",
+    "string.min":
+    "username should have a minimum length of 3 and a maximum length of 45",
   }),
   email: Joi.string()
     .required()
@@ -107,6 +136,31 @@ const passwordSchema = Joi.object({
     confirm_password: Joi.ref('password'),
   });
 
+const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string()
+    .required()
+    .empty()
+    .messages({
+      "any.required": "Sorry, Current password is required",
+      "string.empty": "Sorry, Current password cannot be an empty field",
+    }),
+    newPassword: Joi.string()
+    .required()
+    .empty()
+    .min(5)
+    .max(1024)
+    .regex(/^[a-zA-Z0-9]{3,30}$/)
+    .messages({
+      "any.required": "Sorry, New password is required",
+      "string.pattern.base":
+      "New password must contain only from a-z or A-Z or 0-9.",
+      "string.empty": "Sorry, New password cannot be an empty field",
+      "string.min": "New password should have a minimum length of 5",
+    }),
+
+    confirmNewPassword: Joi.ref('newPassword'),
+  });
+
 const approvalSchema = Joi.object({
     approved: Joi.boolean()
     .required()
@@ -118,18 +172,25 @@ const approvalSchema = Joi.object({
   });
 
 const deedSchema = Joi.object({
-    deed: Joi.string().required().min(20).max(400).empty().messages({
+    deed: Joi.string().required().min(20).max(1024).empty().messages({
       "any.required": "Sorry, deed is required",
       "string.empty": "deed cannot be an empty field",
       "string.min":
-      "pleasem deed should have a minimum length of 20",
+      "deed should have a minimum length of 20",
       "string.max":
       "deed should have a maximum length of 400",
+    }),
+    name: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
+      "any.required": "Sorry, name is required",
+      "string.empty": "name cannot be an empty field",
+      "string.min":
+      "name should have a minimum length of 3 and a maximum length of 45",
     }),
     location: Joi.string().required().empty().messages({
       "any.required": "Sorry, location is required",
       "string.empty": "location cannot be empty",
     }),
+    files: Joi.string(),
   
       date: Joi.date()
       .required()
@@ -137,30 +198,72 @@ const deedSchema = Joi.object({
       .messages({
         "any.required": "Sorry, date is required",
         "string.empty": "Sorry, date must be set",
-      }),
+      })
+  });
 
-      description: Joi.string()
+  // use this in the bulk emailing schema
+let userDetailsForBulkMailing = Joi.object().keys({
+  username: Joi.string().trim().required().min(3).max(45).empty().lowercase().messages({
+    "any.required": "Sorry, username is required",
+    "string.empty": "username cannot be an empty field",
+    "string.min":
+    "username should have a minimum length of 3 and a maximum length of 45",
+  }),
+  email: Joi.string()
+    .required()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net", "uk", "co", "io"] },
+    })
+    .lowercase()
+    .min(5)
+    .max(100)
+    .empty()
+    .messages({
+      "any.required": "Sorry, email is required",
+      "string.empty": "Sorry, Email cannot be an empty field",
+      "string.email": "Please enter a valid email",
+    })
+})
+
+const bulkUserMailSchema = Joi.object({
+    subject: Joi.string().trim().lowercase().required().min(3).max(20).empty().messages({
+      "any.required": "Sorry, subject is required",
+      "string.empty": "subject cannot be an empty field",
+      "string.min":
+      "please subject should have a minimum length of 3",
+      "string.max":
+      "subject should have a maximum length of 20",
+    }),
+
+    userDetails: Joi.array()
+    .items(userDetailsForBulkMailing)
+    .required()
+    .messages({
+      "any.required": "user details are required",
+    }),
+
+      message: Joi.string()
       .required()
       .empty()
       .min(10)
       .max(1024)
       .messages({
-        "any.required": "Sorry, description is required",
-        "string.empty": "Sorry, description cannot be an empty field",
-        "string.min": "description should have a minimum length of 10",
-        "string.max": "description should have a maximum length of 1024",
+        "any.required": "Sorry, message is required",
+        "string.empty": "Sorry, message cannot be an empty field",
+        "string.min": "message should have a minimum length of 10",
+        "string.max": "message should have a maximum length of 1024",
       })
   });
 
-
 const roleSchema = Joi.object({
     name: Joi.string().trim().lowercase().required().min(3).max(20).empty().messages({
-      "any.required": "Sorry, name is required",
-      "string.empty": "name cannot be an empty field",
+      "any.required": "Sorry, Role Name is required",
+      "string.empty": "Role Name cannot be an empty field",
       "string.min":
-      "please name should have a minimum length of 3",
+      "Please Role Name should have a minimum length of 3",
       "string.max":
-      "name should have a maximum length of 20",
+      "Role Name should have a maximum length of 20",
     }),
   
     permission: Joi.array()
@@ -171,7 +274,7 @@ const roleSchema = Joi.object({
       .messages({
         "array.length": `Permissions can not be more than ${permissions.length}`,
         "array.min":
-        "please permission should contain atleast 1 permission",
+        "Please permission should contain atleast 1 permission",
         "any.required": "Sorry, permission is required",
       }),
 
@@ -282,4 +385,7 @@ export { authSchema,
          deedSchema,
          approvalSchema,
          randomMailchema,
-         roleSchema }
+         roleSchema,
+         bulkUserMailSchema,
+         changePasswordSchema,
+         userEditSchema }

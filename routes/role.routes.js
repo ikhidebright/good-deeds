@@ -7,9 +7,10 @@ const { createRole,
         getRoles,
         editRole,
         deleteRole,
-        getRole } = Role
+        getRole, getPermissions } = Role
 
 router.post('/roles', Authenticate, Permit('roles.manage'), createRole);
+router.get('/permissions', Authenticate, Permit('roles.view'), getPermissions);
 router.get('/roles', Authenticate, Permit('roles.view'), getRoles);
 router.put('/role/:id', Authenticate, Permit('roles.manage'), editRole);
 router.delete('/role/:id', Authenticate, Permit('roles.manage'), deleteRole);
